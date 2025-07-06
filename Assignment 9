@@ -1,51 +1,87 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 using namespace std;
 
 class Item {
 public:
     string name;
-    int qty;
-    double price;
+    int quantity;
 
     void display() {
-        cout << name << " - Qty: " << qty << ", $" << price << endl;
+        cout << "Item: " << name << ", Quantity: " << quantity << endl;
     }
 };
 
-int main() {
-    const int SIZE = 3;
-    Item items[SIZE];
-
-    for (int i = 0; i < SIZE; i++) {
-        cout << "Enter name: ";
-        getline(cin, items[i].name);
-        cout << "Enter qty: ";
-        cin >> items[i].qty;
-        cout << "Enter price: ";
-        cin >> items[i].price;
-        cin.ignore();
+void saveToFile(Item inventory[], int size) {
+    ofstream file("inventory.txt");
+    for (int i = 0; i < size; i++) {
+        file << inventory[i].name << " " << inventory[i].quantity << endl;
     }
+    file.close();
+    cout << "Inventory saved to inventory.txt\n";
+}
 
-    cout << "\nInventory:\n";
-    for (int i = 0; i < SIZE; i++) {
-        items[i].display();
-    }
-
-    cout << "\nSearch item name: ";
-    string search;
-    getline(cin, search);
-
+void searchItem(Item inventory[], int size, string searchName) {
     bool found = false;
-    for (int i = 0; i < SIZE; i++) {
-        if (items[i].name == search) {
-            cout << "Found: ";
-            items[i].display();
+    for (int i = 0; i < size; i++) {
+        if (inventory[i].name == searchName) {
+            cout << "Found: " << inventory[i].name << " - Quantity: " << inventory[i].quantity << endl;
             found = true;
             break;
         }
     }
-    if (!found) cout << "Item not found.\n";
+    if (!found) {
+        cout << "Item not found in inventory.\n";
+    }
+}
+
+void updateItem(Item inventory[], int size, string itemName, int addQty) {
+    for (int i = 0; i < size; i++) {
+        if (inventory[i].name == itemName) {
+            inventory[i].quantity += addQty;
+            cout << "Updated quantity for " << itemName << ": " << inventory[i].quantity << endl;
+            return;
+        }
+    }
+    cout << "Item not found to update.\n";
+}
+
+int main() {
+    const int SIZE = 5;
+    Item inventory[SIZE];
+
+    // Input items
+    for (int i = 0; i < SIZE; i++) {
+        cout << "Enter item name: ";
+        cin >> inventory[i].name;
+        cout << "Enter quantity: ";
+        cin >> inventory[i].quantity;
+    }
+
+    // Display inventory
+    cout << "\nInventory:\n";
+    for (int i = 0; i < SIZE; i++) {
+        inventory[i].display();
+    }
+
+    // Save to file
+    saveToFile(inventory, SIZE);
+
+    // Search item
+    string searchName;
+    cout << "\nEnter item name to search: ";
+    cin >> searchName;
+    searchItem(inventory, SIZE, searchName);
+
+    // Update item
+    string updateName;
+    int addQty;
+    cout << "\nEnter item name to update: ";
+    cin >> updateName;
+    cout << "How many to add: ";
+    cin >> addQty;
+    updateItem(inventory, SIZE, updateName, addQty);
 
     return 0;
 }
