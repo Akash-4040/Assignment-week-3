@@ -1,0 +1,51 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Item {
+public:
+    string name;
+    int qty;
+    double price;
+
+    void display() {
+        cout << name << " - Qty: " << qty << ", $" << price << endl;
+    }
+};
+
+int main() {
+    const int SIZE = 3;
+    Item items[SIZE];
+
+    for (int i = 0; i < SIZE; i++) {
+        cout << "Enter name: ";
+        getline(cin, items[i].name);
+        cout << "Enter qty: ";
+        cin >> items[i].qty;
+        cout << "Enter price: ";
+        cin >> items[i].price;
+        cin.ignore();
+    }
+
+    cout << "\nInventory:\n";
+    for (int i = 0; i < SIZE; i++) {
+        items[i].display();
+    }
+
+    cout << "\nSearch item name: ";
+    string search;
+    getline(cin, search);
+
+    bool found = false;
+    for (int i = 0; i < SIZE; i++) {
+        if (items[i].name == search) {
+            cout << "Found: ";
+            items[i].display();
+            found = true;
+            break;
+        }
+    }
+    if (!found) cout << "Item not found.\n";
+
+    return 0;
+}
