@@ -4,78 +4,58 @@
 using namespace std;
 
 class BankAccount {
-public:
-    string name;
-    double balance;
-    string purchases[10];   // Array to store up to 10 purchase items
-    int purchaseCount = 0;  // How many purchases made
-
-    BankAccount(string userName, double startBalance) {
-        name = userName;
-        balance = startBalance;
-    }
-
-    void deposit(double amount) {
-        balance = balance + amount;
-        saveToFile("Deposit", amount, "");
-    }
-
-    void purchase(double amount, string item) {
-        if (amount <= balance) {
-            balance = balance - amount;
-            if (purchaseCount < 10) {
-                purchases[purchaseCount] = item;  // save item in array
-                purchaseCount++;
-            }
-            saveToFile("Purchase", amount, item);
-        } else {
-            cout << "Not enough money for " << item << endl;
-        }
-    }
-
-    void showBalance() {
-        cout << "Current Balance: $" << balance << endl;
-    }
-
-    void showPurchases() {
-        cout << "Purchase list:\n";
-        for (int i = 0; i < purchaseCount; i++) {
-            cout << i+1 << ". " << purchases[i] << endl;
-        }
-    }
-
-    void showHistory() {
-        ifstream file("transactions.txt");
-        string line;
-        while (getline(file, line)) {
-            cout << line << endl;
-        }
-        file.close();
-    }
-
 private:
-    void saveToFile(string type, double amount, string item) {
+    double balance;
+
+    // Save each transaction to the file
+    void saveTransaction(string type, double amount) {
         ofstream file("transactions.txt", ios::app);
-        if (type == "Deposit") {
+        if (file.is_open()) {
             file << type << ": $" << amount << endl;
-        } else if (type == "Purchase") {
-            file << type << ": $" << amount << " - " << item << endl;
+            file.close();
         }
-        file.close();
+    }
+
+public:
+    // Constructor starts balance at 0
+    BankAccount() {
+        balance = 0.0;
+    }
+
+    // Add money to the account
+    void deposit(double amount) {
+        balance += amount;
+        saveTransaction("Deposit", amount);
+    }
+
+    // Buy an item if enough money
+    void makePurchase(string item, double cost) {
+        if (cost > balance) {
+            cout << "Insufficient funds for " << item << endl;
+        } else {
+            balance -= cost;
+            saveTransaction("Purchase - " + item, cost);
+        }
+    }
+
+    // Show current balance
+    void displayBalance() {
+        cout << "Current Balance: $" << balance << endl;
     }
 };
 
 int main() {
-    BankAccount myAccount("Akash", 100.0);
+    BankAccount myAccount;
 
-    myAccount.deposit(50.0);
-    myAccount.purchase(30.0, "Snacks");
-    myAccount.purchase(40.0, "Shoes");
+    // Add initial deposit
+    myAccount.deposit(100.00);
 
-    myAccount.showBalance();
-    myAccount.showPurchases();   // Show purchases stored in the array
-    cout << "Transaction History:\n";
-    myAccount.showHistory();
+    // Make two purchases
+    myAccount.makePurchase("Coffee", 4.50);
+    myAccount.makePurchase("Book", 25.00);
+
+    // Print final balance
+    myAccount.displayBalance();
 
     return 0;
 }
